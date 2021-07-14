@@ -1,6 +1,6 @@
 # Author        : Sean Hambali 
 # Project       : Scraping Hospital Availability Data
-# Last updated  : 13 July 2021
+# Last updated  : 14 July 2021
 
 # remove previous environment 
 rm(list=ls())
