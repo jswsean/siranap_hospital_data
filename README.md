@@ -10,4 +10,7 @@
  * **rdata**, which contains the daily RDS raw data files 
  * **script**, which contains the R script that is used to scrape the website 
 
+Users are permitted to distribute copies of the file, but are not permitted to make modifications to the script without the 
+writer's permission. 
+
 Enjoy!
