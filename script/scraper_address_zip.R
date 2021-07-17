@@ -36,7 +36,7 @@ scrape_address <- function(keyword) {
   remDr$findElement("name", "q")$sendKeysToElement(list(keyword, key = "enter"))
   
   # giving time to the system to reload 
-  Sys.sleep(3)
+  Sys.sleep(5)
   
   # obtaining the page source of the inputted text 
   html <- remDr$getPageSource()[[1]]
@@ -45,6 +45,8 @@ scrape_address <- function(keyword) {
   address_new <- read_html(html) %>% 
   html_nodes(".QsDR1c .w8qArf+ .LrzXr") %>% 
   html_text()
+  
+  if (length(address_new) == 0) { address_new <- "NA" }
   
   address_df <- data.frame(new_address = address_new)
   
@@ -62,5 +64,4 @@ scrape_address <- function(keyword) {
 keywords_data <- keywords_data %>% 
   group_by(keyword) %>% 
   do(scrape_address(.$keyword))
-
 

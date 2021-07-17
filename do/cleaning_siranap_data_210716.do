@@ -115,6 +115,7 @@ if "`c(username)'" == "Sean Hambali" {
 	la var scraped_at "Scraping date"
 	la var hospital_id "Hospital ID"
 	
+	gsort +hospital_id +date
 	
 // saving the final data 
 	save "$dta/siranap_covid", replace

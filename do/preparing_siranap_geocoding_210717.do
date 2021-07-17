@@ -37,7 +37,6 @@ if "`c(username)'" == "Sean Hambali" {
 	
 // generating search keywords 
 	g keyword = hospital + " " + nama
-	split keyword, parse(" ") generate(keyword)
 	
 // export this data to csv 
 	export delimited using "$csv/hospital_keywords.csv", delim(tab) replace
