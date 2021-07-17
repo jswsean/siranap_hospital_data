@@ -11,6 +11,7 @@ library(rvest)
 library(data.table)
 library(haven)
 library(xml2)
+library(RSelenium)
 
 # setting the working directories 
 data <- "C:/Users/Sean Hambali/Desktop/DATA/"
@@ -19,22 +20,47 @@ csvout <- "C:/Users/Sean Hambali/Documents/Github/siranap_hospital_data/csv/"
 dtaout <- "C:/Users/Sean Hambali/Documents/Github/siranap_hospital_data/dta/"
 
 # importing the keywords data 
-keywords_data <- read_delim(file = paste0(csvout, "hospital_keywords.csv"), delim = "\t")
+keywords_data <- read_delim(file = paste0(csvout, "hospital_keywords.csv"), delim = "\t")[,1:4]
 
-# google search url
-keywords_data$keyword <- gsub(" ", "+", keywords_data$keyword)
-example <- keywords_data$keyword[1]
-url <- "https://www.google.com/search?q=BMC+Mayapada+Hospital+Kota+Bogor&oq=BMC+&aqs=edge.1.69i59l2j69i57j0i67l3j0.2918j0j9&sourceid=chrome&ie=UTF-8"
+# open the required browser
+rD <- rsDriver(browser = "firefox", port = 4005L, verbose = F)
+remDr <- rD[["client"]]
 
-body_nodes <- read_html(url) %>% 
-  html_node("body") %>% 
-  html_children()
+# navigating to the page of interest 
+remDr$navigate("https://www.google.com/")
 
-body_nodes_children <- body_nodes %>% html_children()
-
-address <- read_html(url) %>% 
-  html_nodes('body') %>% 
-  xml_find_all("//span[contains(@class, 'LrzXr')]") 
-
-  html_nodes(".QsDR1c:nth-child(4) .wDYxhc , .QsDR1c .w8qArf+ .LrzXr") %>% 
+# developing the scraping function 
+scrape_address <- function(keyword) {
+  
+  # hit the search button 
+  remDr$findElement("name", "q")$sendKeysToElement(list(keyword, key = "enter"))
+  
+  # giving time to the system to reload 
+  Sys.sleep(3)
+  
+  # obtaining the page source of the inputted text 
+  html <- remDr$getPageSource()[[1]]
+  
+  # getting the address page
+  address_new <- read_html(html) %>% 
+  html_nodes(".QsDR1c .w8qArf+ .LrzXr") %>% 
   html_text()
+  
+  address_df <- data.frame(new_address = address_new)
+  
+  # clearing the input box
+  remDr$findElement("name", "q")$clearElement()
+  
+  return(address_df)
+  
+  # giving time to reload
+  Sys.sleep(runif(1,1,3))
+  
+}
+
+# testing the basic function 
+keywords_data <- keywords_data %>% 
+  group_by(keyword) %>% 
+  do(scrape_address(.$keyword))
+
+
