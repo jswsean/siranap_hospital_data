@@ -10,6 +10,7 @@ library(tidyverse)
 library(rvest)
 library(data.table)
 library(haven)
+library(xml2)
 
 # setting the working directories 
 data <- "C:/Users/Sean Hambali/Desktop/DATA/"
@@ -24,6 +25,16 @@ keywords_data <- read_delim(file = paste0(csvout, "hospital_keywords.csv"), deli
 keywords_data$keyword <- gsub(" ", "+", keywords_data$keyword)
 example <- keywords_data$keyword[1]
 url <- "https://www.google.com/search?q=BMC+Mayapada+Hospital+Kota+Bogor&oq=BMC+&aqs=edge.1.69i59l2j69i57j0i67l3j0.2918j0j9&sourceid=chrome&ie=UTF-8"
-address_text <- read_html(url) %>% 
+
+body_nodes <- read_html(url) %>% 
+  html_node("body") %>% 
+  html_children()
+
+body_nodes_children <- body_nodes %>% html_children()
+
+address <- read_html(url) %>% 
+  html_nodes('body') %>% 
+  xml_find_all("//span[contains(@class, 'LrzXr')]") 
+
   html_nodes(".QsDR1c:nth-child(4) .wDYxhc , .QsDR1c .w8qArf+ .LrzXr") %>% 
   html_text()
